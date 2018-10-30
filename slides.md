@@ -11,7 +11,7 @@ background-size: cover
 
 - _Je m'appelle Brian._
 - _Je suis américain, et je parle français comme un enfant._
-- _(... ou, comme le dit un collègue, comme une vache espagnole.)_
+- _(... ou, comme une vache espagnole.)_
 - _Alors..._
 - This talk will be in English.
 - _(Pardon.)_

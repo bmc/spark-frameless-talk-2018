@@ -20,11 +20,22 @@ To build the slides, just run `./build.sh`. It'll build a standalone
 
 ## The Databricks notebooks
 
-The `notebooks` folder contains the notebooks used during the presentation.
-You can import these notebooks into Databricks, including Databricks Community
-Edition, by following the instructions at 
+The `notebooks` folder contains the individual notebooks used during the
+presentation. You'll need all three. If you want, you can import them
+individually. Or, you can simply download and import the `notebooks.dbc`
+file in this directory; it contains all three notebooks.
+
+For information on how to import notebooks into Databricks, including
+Databricks Community Edition, see
 <https://docs.databricks.com/user-guide/notebooks/notebook-manage.html#import-a-notebook>
 
-## The data
+There are three notebooks:
 
-TBD
+- `Defs.scala`: definitions shared across the other two notebooks (each of
+  which invokes `Defs`)
+- `00-Create-Data-Files.scala`, which downloads a data file of tweets from
+  early 2018 and also parses a Kafka stream of current tweets, producing
+  the new data files needed by the presentation. Follow the instructions
+  in this notebook to create local copies of the data.
+- `01-Presentation.scala` is the hands-on notebook part of the presentation.
+
