@@ -1,6 +1,6 @@
 ---
 title: Introduction to Apache Spark™ with Frameless
-author: Brian M. Clapper (bmc@databricks.com)
+author: Brian M. Clapper<br/><i>bmc@databricks.com, @brianclapper</i>
 background-image: images/title-bg.png
 background-size: cover
 ---
@@ -11,34 +11,43 @@ background-size: cover
 
 - _Je m'appelle Brian._
 - _Je suis américain, et je parle français comme un enfant._
-- _(... ou, comme une vache espagnole.)_
+- _(... ou, si vous préférez, comme une vache espagnole.)_
 - _Alors..._
 - This talk will be in English.
 - _(Pardon.)_
 
 :::
 
-# This talk... {data-background-image="images/normal-bg.png"}
+# {data-background-image="images/normal-bg.png"}
+
+This talk has nothing about category theory. It doesn't talk about
+type-level programming or type classes (even though Frameless relies
+heavily on both).
+
+# {data-background-image="images/normal-bg.png"}
+
+Instead, this talk:
 
 ::: incremental
 
 - ...is a gentle introduction to Apache Spark.
-- ...compares the standard Spark DataFrames and Datasets APIs to the
-  Typelevel Frameless API.
+- ...compares and contrasts the standard Spark DataFrames and Datasets APIs 
+  with the Typelevel Frameless API.
+- It's oriented toward learning how to _use_ these APIs.
 - Hopefully, at the end:
-    - you'll walk away with an understanding of Spark (if you don't already 
+    - you'll walk away with some understanding of Spark (if you don't already 
       know it) 
     - and you'll have some idea of how Frameless compares to the native
       Spark APIs.
 
 :::
 
-# {data-background-image="images/normal-bg.png"}
+# This is the last slide {class="slide-title" data-background-image="images/normal-bg.png"}
 
-This talk will be largely hands-on, using Databricks notebooks.
+This talk will be largely demo-oriented, using Databricks notebooks.
 
-The source to these slides and to all the notebooks will be in GitHub repo  
+The source to these slides and to all the notebooks are in GitHub repo  
 `github.com/bmc/spark-frameless-talk-2018`
 
-The README in that repo will explain how to run the notebooks yourself, if
+The README in that repo explains how to run the notebooks yourself, if
 you want to do so.

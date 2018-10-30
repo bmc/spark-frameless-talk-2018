@@ -6,10 +6,24 @@ body {
   font-family: @bodyFont;
 }
 
-h1.title {
-  font-weight: bold !important;
-  font-size: 48pt !important;
-  text-transform: none !important;
+section {
+  h1 {
+    text-transform: none !important;
+    font-weight: bold !important;
+  }
+
+  &#title-slide {
+    h1 {
+      color: white !important;
+      font-size: 48pt !important;
+    }
+  }
+
+  &.slide {
+    h1 {
+      color: red !important;
+    }
+  }
 }
 
 .author {
