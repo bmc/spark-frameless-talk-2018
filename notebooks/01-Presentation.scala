@@ -458,7 +458,7 @@ tds
 // MAGIC %md
 // MAGIC Huh. _Also_ lazy.
 // MAGIC 
-// MAGIC What we'd call an "action" in Spark returns a Frameless [Job](https://typelevel.org/frameless/Job.html). We have to _run()_ a job.
+// MAGIC What we'd call an "action" in Spark returns a Frameless [Job](https://typelevel.org/frameless/Job.html). We have to `run()` a job.
 
 // COMMAND ----------
 
@@ -711,13 +711,13 @@ tdsNested.select(tdsNested.colMany('tweet, 'userScreenNam)).show(3).run()
 // MAGIC %md
 // MAGIC ## A (little) bit more on Jobs
 // MAGIC 
-// MAGIC Jobs compose. You can `run()` a job, or you can compose it with other jobs.
+// MAGIC Jobs compose. You can `run()` a job, or you can compose it with other jobs. (You'll see similar examples in the Frameless documentation.)
 
 // COMMAND ----------
 
 val job1 = tds.count()
 val job2 = job1.flatMap { count => tds.take((count / 100).toInt) }
-job2.run().foreach(println)
+job2.run().foreach(t => println(s"@${t.userScreenName.getOrElse("?")}: ${t.text}"))
 
 // COMMAND ----------
 
@@ -733,6 +733,21 @@ println(sample.length)
 
 // COMMAND ----------
 
+display(tds.dataset)
+
+// COMMAND ----------
+
+def sampleTweetsWithHashTags(sample: Job[Seq[TweetData]]): Job[Seq[TweetData]] = sample.map { tweets => tweets.filter(_.hashTags.nonEmpty) }
+
+val withTags = sampleTweetsWithHashTags(nonRandomSamplingJob).run()
+
+println("Do they match?")
+println(s"Directly from sample: ${sample.filter(_.hashTags.nonEmpty).length}")
+println(s"From job: ${withTags.length}")
+println("-" * 64)
+
+// COMMAND ----------
+
 // MAGIC %md
 // MAGIC # Conclusion
 // MAGIC 
@@ -744,8 +759,13 @@ println(sample.length)
 // MAGIC 
 // MAGIC **A**: Like so much in our field, it depends.
 // MAGIC 
-// MAGIC Frameless will have you typing more, and you'll likely be using more temporary variables. (But what are a few temp variables between
-// MAGIC friends?)
+// MAGIC With Frameless:
+// MAGIC 
+// MAGIC - You'll be doing more typing.
+// MAGIC - You'll likely be using more temporary variables. (But what are a few temp variables between friends?)
+// MAGIC - You may get some compiler errors that are confusing at first.
+// MAGIC 
+// MAGIC But you get strong compile-time type-safety _without_ paying the performance penalties associated with using lambdas and the Datasets API.
 // MAGIC 
 // MAGIC My preference is to stick with the DataFrame API when I'm just experimenting with data interactively. It's faster to type, and I don't mind the runtime errors in that use case.
 // MAGIC 
