@@ -665,6 +665,35 @@ tds.select(tds.asCol, tds('id) * 2).show(1).run()
 // COMMAND ----------
 
 // MAGIC %md
+// MAGIC ## What about performance?
+// MAGIC 
+// MAGIC Let's do our previous join, but in Frameless, and check the query plan. You'll see that it's substantially similar to the
+// MAGIC query plan for the corresponding DataFrame.
+// MAGIC 
+// MAGIC Frameless has its own DSL that "compiles" down to actual Spark calls, _at compile time_. As long as you avoid lambdas, your Frameless performance won't differ from Spark DataFrame performance.
+
+// COMMAND ----------
+
+case class User(userScreenName: Option[String])
+case class Moron(hashTags: Array[String], text: String, timestamp: java.sql.Timestamp, id: Long, userScreenName: Option[String])
+val dsMostUsers = mostUsers.as[User]
+val tdsMostUsers = TypedDataset.create(dsMostUsers)
+val tdsMorons = TypedDataset.create(morons.as[Moron])
+//val withCityInfo = aptTypedDs.joinInner(citiInfoTypedDS) { aptTypedDs('city) === citiInfoTypedDS('name) }
+
+val tdsJoined = tdsMorons.joinInner(tdsMostUsers) { tdsMostUsers('userScreenName) === tdsMorons('userScreenName) }
+val tdsStillAround = tdsJoined
+  .filter(tdsJoined.colMany('_2, 'userScreenName) =!= Some("TheFuckawee"))
+  .select(tdsJoined.colMany('_2, 'userScreenName), tdsJoined.colMany('_1, 'id))
+tdsStillAround.explain()
+
+// COMMAND ----------
+
+stillAround.explain()
+
+// COMMAND ----------
+
+// MAGIC %md
 // MAGIC ## Nested schemas
 // MAGIC 
 // MAGIC Let's write some nested JSON data, so we can compare the DataFrame vs. Frameless approach to accessing nested columns.
