@@ -33,8 +33,9 @@ display(df) // what do the first 1,000 look like?
 // COMMAND ----------
 
 // MAGIC %md
-// MAGIC The DataFrame API is a DSL that implements an untyped query language. Let's run a query that'll pull up
-// MAGIC some tweets from people I like to call "The Moron Brigade".
+// MAGIC The DataFrame API is a DSL that implements an query language. The DSL is _not_ compile-time type-safe.
+// MAGIC 
+// MAGIC Let's run a query that'll pull up some tweets from people I never want to follow.
 
 // COMMAND ----------
 
