@@ -5,19 +5,6 @@ background-image: images/title-bg.png
 background-size: cover
 ---
 
-# Bonjour {data-background-image="images/normal-bg.png"}
-
-::: incremental
-
-- _Je m'appelle Brian._
-- _Je suis américain, et je parle français comme un enfant._
-- _(... ou, si vous préférez, comme une vache espagnole.)_
-- _Alors..._
-- This talk will be in English.
-- _(Pardon.)_
-
-:::
-
 # {data-background-image="images/normal-bg.png"}
 
 This talk has nothing about category theory. It doesn't talk about
