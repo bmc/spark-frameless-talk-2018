@@ -35,42 +35,41 @@ display(df) // what do the first 1,000 look like?
 // MAGIC %md
 // MAGIC The DataFrame API is a DSL that implements an query language. The DSL is _not_ compile-time type-safe.
 // MAGIC 
-// MAGIC Let's run a query that'll pull up some tweets from people I never want to follow.
-
-// COMMAND ----------
-
-import org.apache.spark.sql.functions._
-val morons = df
-  .filter(array_contains($"hashTags", "maga") ||
-          array_contains($"hashTags", "MAGA") || 
-          array_contains($"hashTags", "KAG") || 
-          array_contains($"hashTags", "AmericaFirst") ||
-          array_contains($"hashTags", "Trump2020") ||
-          array_contains($"hashTags", "Trump") ||
-          $"userScreenName" === "realDonaldTrump")
-  .select($"userScreenName", $"hashTags", $"text", $"timestamp", $"id")
-
-println(morons.count())
-
-// COMMAND ----------
-
-display(morons)
-
-// COMMAND ----------
-
-// MAGIC %md
-// MAGIC The query language is powerful, and it's quite reminiscent of SQL. (That's deliberate.)
+// MAGIC What are the top hash tags?
 
 // COMMAND ----------
 
 // Count each unique tag, case-folded, and display them in order of popularity
+import org.apache.spark.sql.functions._
 display(
-  df
+  df.cache()
     .select(explode($"hashTags").alias("tag"))
     .groupBy(lower($"tag"))
     .count
     .orderBy($"count".desc)
 )
+
+// COMMAND ----------
+
+// MAGIC %md
+// MAGIC The query language is powerful, and it's quite reminiscent of SQL. (That's deliberate.)
+// MAGIC 
+// MAGIC No matter what hash tags are trending, some tags always seem to be present. For instance, the polarization in our politics pretty much guarantees we can find some hits for these: 
+
+// COMMAND ----------
+
+val tags = df
+  .filter(array_contains($"hashTags", "maga") ||
+          array_contains($"hashTags", "MAGA") ||
+          array_contains($"hashTags", "trump") ||
+          array_contains($"hashTags", "Trump"))
+  .select($"userScreenName", $"hashTags", $"text", $"timestamp", $"id")
+
+println(tags.count())
+
+// COMMAND ----------
+
+display(tags)
 
 // COMMAND ----------
 
@@ -111,7 +110,7 @@ df.select($"username", $"tweet")
 
 // COMMAND ----------
 
-val data = morons.collect()
+val data = tags.collect()
 println(data(0)(0))
 println("\n\n--------")
 
@@ -274,7 +273,7 @@ ds.map(_.timestamp * 1000)
 
 // COMMAND ----------
 
-val someOfTheMorons = ds.filter(_.hashTags.exists(_.toLowerCase == "maga")).collect()
+val someOfTheTags = ds.filter(_.hashTags.exists(_.toLowerCase == "maga")).collect()
 
 // COMMAND ----------
 
@@ -336,10 +335,10 @@ val save = spark.conf.get("spark.sql.autoBroadcastJoinThreshold")
 spark.conf.set("spark.sql.autoBroadcastJoinThreshold", "1")
 
 val mostUsers = spark.read.parquet(MostUsersPath)
-val stillAround = morons
-  .join(mostUsers, mostUsers("userScreenName") === morons("userScreenName"))
+val stillAround = tags
+  .join(mostUsers, mostUsers("userScreenName") === tags("userScreenName"))
   .filter(mostUsers("userScreenName") =!= "TheFukawee")
-  .select(mostUsers("userScreenName"), morons("id"))
+  .select(mostUsers("userScreenName"), tags("id"))
 
 stillAround.explain
 
@@ -356,9 +355,9 @@ stillAround.explain
 
 // COMMAND ----------
 
-val joined = morons
-  .join(mostUsers, mostUsers("userScreenName") === morons("userScreenName"))
-  .select(mostUsers("userScreenName"), morons("id"))
+val joined = tags
+  .join(mostUsers, mostUsers("userScreenName") === tags("userScreenName"))
+  .select(mostUsers("userScreenName"), tags("id"))
   .as[(String, Long)]
   .filter { t => t match {
     case (id, screenName) => screenName != "TheFukawee"
@@ -369,7 +368,6 @@ joined.explain
 // COMMAND ----------
 
 spark.conf.set("spark.sql.autoBroadcastJoinThreshold", save)
-
 
 // COMMAND ----------
 
@@ -544,7 +542,6 @@ val tds2Bad = tds
   .select(tds('userScreenName), tds('id) * 2) // wrong order
   .as[IdDoubledAndName]
 
-
 // COMMAND ----------
 
 // Projection, where the names don't match.
@@ -586,13 +583,35 @@ import frameless.functions.nonAggregate._
 
 // COMMAND ----------
 
-// Drop a single column, returning a new tuple-based type.
-
-tds.dropTupled('id)
+// MAGIC %md
+// MAGIC Drop a column (`id`) and return a `TypedDataset` with a new tuple-based type schema.
 
 // COMMAND ----------
 
 tds.dropTupled('id).show(10).run()
+
+// COMMAND ----------
+
+// MAGIC %md 
+// MAGIC Operations like `distinct` work as expected.
+
+// COMMAND ----------
+
+tds.select(tds('userScreenName)).distinct.show().run()
+
+// COMMAND ----------
+
+// MAGIC %md Aggregation is slightly less SQL-like:
+
+// COMMAND ----------
+
+val screenNameCounts = tds.groupBy(tds('userScreenName)).agg(count(tds('userScreenName)))
+val ordered = screenNameCounts.filter(screenNameCounts('_1).isNotNone).orderBy(screenNameCounts('_2).desc)
+ordered.show().run()
+val topTwoScreenNames = ordered.select(ordered('_1)).take(2).run()
+val firstScreenName: String = topTwoScreenNames(0).get
+val secondScreenName: String = topTwoScreenNames(1).get
+// Sometimes, you'll need some additional temporary variables...
 
 // COMMAND ----------
 
@@ -631,8 +650,10 @@ tdsSome2.show(10).run()
 
 // Conditionally replace a column value:
 val tdsSome3 = tdsSome2
+  .filter((tdsSome2('userScreenName) === Some(firstScreenName)) ||
+          (tdsSome2('userScreenName) === Some(secondScreenName)))
   .withColumnTupled(
-    when(tdsSome2('userScreenName) =!= Some("lionwhale12"), tdsSome2('id)).
+    when(tdsSome2('userScreenName) === Some(topScreenName), tdsSome2('id)).
     otherwise(lit(1L))
   )
 tdsSome3.show(10).run()
@@ -646,8 +667,10 @@ tdsSome3.show(10).run()
 
 // Something more complicated
 val tdsSome4 = tdsSome2
+  .filter((tdsSome2('userScreenName) === Some(firstScreenName)) ||
+          (tdsSome2('userScreenName) === Some(secondScreenName)))
   .withColumnTupled(
-    when(tdsSome2('userScreenName) === Some("lionwhale12"), lit(1L)).
+    when(tdsSome2('userScreenName) === Some(firstScreenName), lit(1L)).
     otherwise(tdsSome2('id))
   )
 tdsSome4.show(10).run()
@@ -675,13 +698,12 @@ tds.select(tds.asCol, tds('id) * 2).show(1).run()
 // COMMAND ----------
 
 case class User(userScreenName: Option[String])
-case class Moron(hashTags: Array[String], text: String, timestamp: java.sql.Timestamp, id: Long, userScreenName: Option[String])
+case class MatchedTweet(hashTags: Array[String], text: String, timestamp: java.sql.Timestamp, id: Long, userScreenName: Option[String])
 val dsMostUsers = mostUsers.as[User]
 val tdsMostUsers = TypedDataset.create(dsMostUsers)
-val tdsMorons = TypedDataset.create(morons.as[Moron])
-//val withCityInfo = aptTypedDs.joinInner(citiInfoTypedDS) { aptTypedDs('city) === citiInfoTypedDS('name) }
+val tdsMatches = TypedDataset.create(tags.as[MatchedTweet])
 
-val tdsJoined = tdsMorons.joinInner(tdsMostUsers) { tdsMostUsers('userScreenName) === tdsMorons('userScreenName) }
+val tdsJoined = tdsMatches.joinInner(tdsMostUsers) { tdsMostUsers('userScreenName) === tdsMatches('userScreenName) }
 val tdsStillAround = tdsJoined
   .filter(tdsJoined.colMany('_2, 'userScreenName) =!= Some("TheFuckawee"))
   .select(tdsJoined.colMany('_2, 'userScreenName), tdsJoined.colMany('_1, 'id))
@@ -701,9 +723,10 @@ stillAround.explain()
 // COMMAND ----------
 
 case class Nested(tweet: TweetData, rowID: Long)
-tds
+val tdsNested = tds
   .select(tds.asCol, tds('id) + 100)
   .as[Nested]
+tdsNested
   .limit(100)
   .write // returns a Spark DataFrameWriter
   .mode("overwrite")
@@ -727,7 +750,6 @@ dfNested.select($"tweet.userScreenNam").show(3)
 // COMMAND ----------
 
 // Frameless: Use colMany()
-val tdsNested = TypedDataset.create(dfNested.as[Nested])
 tdsNested.select(tdsNested.colMany('tweet, 'userScreenName)).show(3).run()
 
 // COMMAND ----------
@@ -799,7 +821,3 @@ println("-" * 64)
 // MAGIC My preference is to stick with the DataFrame API when I'm just experimenting with data interactively. It's faster to type, and I don't mind the runtime errors in that use case.
 // MAGIC 
 // MAGIC But for production jobs, I'm beginning to prefer Frameless, for the compile-time protection.
-
-// COMMAND ----------
-
-
