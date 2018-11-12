@@ -2,6 +2,11 @@
 
 Note that version stamps correspond to Git tags. There's no version file.
 
+**Version v1.1.1**
+
+- Some tweaks to the `00-Create-Data-Files` notebook to supply some
+  accidentally removed definitions.
+
 **Version v1.1.0**
 
 - Added a couple cells that demonstrate that `TypedDataset` performance

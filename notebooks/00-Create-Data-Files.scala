@@ -6,14 +6,6 @@
 
 // COMMAND ----------
 
-spark.conf.get("")
-
-// COMMAND ----------
-
-spark.conf.get("spark.sql.autoBroadcastJoinThreshold")
-
-// COMMAND ----------
-
 // MAGIC %run ./Defs
 
 // COMMAND ----------
@@ -22,6 +14,11 @@ spark.conf.get("spark.sql.autoBroadcastJoinThreshold")
 // MAGIC ## Create the recent tweets file
 // MAGIC 
 // MAGIC The following cells create a Parquet file from a Kafka stream containing recent tweets.
+
+// COMMAND ----------
+
+val KafkaHost = "server1.databricks.training:9092"
+val StreamCheckpoint = s"$RootDir/checkpoint"
 
 // COMMAND ----------
 
@@ -82,6 +79,12 @@ val cleanDF = kafkaDF
   .select("message.*")
   .select($"*", ($"createdAt" / 1000).cast(TimestampType).as("timestamp"))
   .drop("createdAt")
+
+// COMMAND ----------
+
+// MAGIC %md
+// MAGIC 
+// MAGIC Run the following cell if you want to examine the data before saving it. Be sure to cancel it.
 
 // COMMAND ----------
 
@@ -157,7 +160,6 @@ val uParseTimestamp = spark.udf.register("parseTimestamp", { s: String =>
   val dt = java.time.ZonedDateTime.parse("2018-02-02T10:03:49.000Z", formatter)
   java.sql.Timestamp.from(dt.toInstant)
 })
-
 
 // COMMAND ----------
 
