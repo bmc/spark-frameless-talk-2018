@@ -169,8 +169,7 @@ val df = spark
   .json("dbfs:/tmp/old-tweets.json")
   .select($"*", uParseTimestamp($"timestamp").as("ts"))
   .drop("timestamp")
-  .withColumnRenamed("ts", "timestamp")//.write.mode("overwrite").parquet(OldTweetsDataPath)
-df
+  .withColumnRenamed("ts", "timestamp")
   .write
   .mode("overwrite")
   .parquet(OldTweetsDataPath)
