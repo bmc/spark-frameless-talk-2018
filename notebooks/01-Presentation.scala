@@ -287,7 +287,7 @@ val someOfTheTags = ds.filter(_.hashTags.exists(_.toLowerCase == "maga")).collec
 // MAGIC %md
 // MAGIC ## Tungsten Data Format
 // MAGIC 
-// MAGIC Unlike the older Spark RDD API, which looks a lot like the Scala collections API, Spark SQL does not store data partitions in memory as JVM objects. Instead, it uses a compact, column-oriented format called "Tungsten". You can think of it as a huge byte-buffer of row and column data.
+// MAGIC Unlike the older Spark RDD API, which looks a lot like the Scala collections API, Spark SQL does not store data partitions in memory as JVM objects. Instead, it uses a compact, optimized format called "Tungsten". This format is memory-efficient and is optimized for many of the operations Spark performs (such as sorting, which can often be done in place, without deserializing the data out of Tungsten.)
 
 // COMMAND ----------
 
