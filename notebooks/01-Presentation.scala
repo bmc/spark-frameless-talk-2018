@@ -303,7 +303,7 @@ val someOfTheTags = ds.filter(_.hashTags.exists(_.toLowerCase == "maga")).collec
 // MAGIC 
 // MAGIC If you cast a DataFrame to a Dataset, _and then you invoke a functional-style lambda_, Spark has to copy the data out of Tungsten and into a JVM object, to pass it to your lambda.
 // MAGIC 
-// MAGIC <img src="https://github.com/bmc/spark-frameless-talk-2018/raw/master/images/tungsten-dataset.png"/>
+// MAGIC <img src="https://github.com/bmc/spark-frameless-talk-2018/raw/master/images/filter-dataset.png"/>
 
 // COMMAND ----------
 
