@@ -229,6 +229,10 @@ val dsBad = df.as[TweetDataBad] // Runtime error, as befits a cast operation
 
 // COMMAND ----------
 
+ds
+
+// COMMAND ----------
+
 display(
   ds
     .filter(array_contains($"hashTags", "MAGA"))
@@ -323,7 +327,7 @@ val MostUsersPath = s"$RootDir/most-users.parquet"
 val oldTweeters = spark.read.parquet(OldTweetsDataPath)
 oldTweeters
   .select($"userScreenName")
-  .union(df.select($"userScreenName"))
+  //.union(df.select($"userScreenName"))
   .distinct
   .write
   .mode("overwrite")
@@ -653,7 +657,7 @@ val tdsSome3 = tdsSome2
   .filter((tdsSome2('userScreenName) === Some(firstScreenName)) ||
           (tdsSome2('userScreenName) === Some(secondScreenName)))
   .withColumnTupled(
-    when(tdsSome2('userScreenName) === Some(topScreenName), tdsSome2('id)).
+    when(tdsSome2('userScreenName) === Some(firstScreenName), tdsSome2('id)).
     otherwise(lit(1L))
   )
 tdsSome3.show(10).run()
