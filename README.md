@@ -36,6 +36,29 @@ There are three notebooks:
 - `00-Create-Data-Files.scala`, which downloads a data file of tweets from
   early 2018 and also parses a Kafka stream of current tweets, producing
   the new data files needed by the presentation. Follow the instructions
-  in this notebook to create local copies of the data.
+  in this notebook to create local copies of the data. **BUT**, also, see
+  [below](#data).
 - `01-Presentation.scala` is the hands-on notebook part of the presentation.
 
+## The Data
+
+You can us the `00-Create-Data-Files.scala` to download and create the data. 
+However, if you'd prefer to use existing data, you can also just get existing
+Parquet files from the following locations:
+
+- <https://s3.amazonaws.com/ardentex-spark/spark-frameless/tweets.parquet.zip>
+- <https://s3.amazonaws.com/ardentex-spark/spark-frameless/old-tweets.parquet.zip>
+
+My recommendation:
+
+1. Download those zip files.
+2. Unzip them.
+3. Upload them to your own S3 bucket.
+4. In a Databricks workspace (such as
+   [Databricks Community Edition](https://databricks.com/ce)),
+   [mount your S3 bucket to DBFS](https://docs.databricks.com/spark/latest/data-sources/aws/amazon-s3.html#mount-aws-s3).
+5. Update the paths (in the `Defs.scala` notebook) to point to your S3
+   bucket.
+6. Enjoy.
+
+Feel free to drop me email (_bmc@clapper.org_) if you need help.
