@@ -37,7 +37,7 @@ There are three notebooks:
   early 2018 and also parses a Kafka stream of current tweets, producing
   the new data files needed by the presentation. Follow the instructions
   in this notebook to create local copies of the data. **BUT**, also, see
-  [below](#data).
+  [below](#the-data).
 - `01-Presentation.scala` is the hands-on notebook part of the presentation.
 
 ## The Data
