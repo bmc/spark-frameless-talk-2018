@@ -40,6 +40,15 @@ There are three notebooks:
   [below](#the-data).
 - `01-Presentation.scala` is the hands-on notebook part of the presentation.
 
+### Software Versions
+
+I ran the notebooks in Databricks, with:
+
+- Spark 2.3
+- Scala 2.11
+- `frameless-dataset_2.11-0.7.0`
+- `frameless-cats_2.11-0.7.0`
+
 ## The Data
 
 You can us the `00-Create-Data-Files.scala` to download and create the data. 
